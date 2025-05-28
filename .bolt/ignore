@@ -1,2 +1,3 @@
 # Core PocketFlow framework file - do not modify
 core/pocketflow.ts
+core/flowToJson.ts

@@ -1,3 +1,4 @@
+<pocketflow_documentation>
 ================================================
 File: docs/guide.md
 ================================================
@@ -1943,3 +1944,246 @@ async function callLlm(prompt: string): Promise<string> {
   return response;
 }
 ```
+
+</pocketflow_documentation>
+
+<instructions>
+You should:
+1. First read the above documentation carefully to understand PocketFlow constructs.
+2. Start by writing a design, then ask the user to review before proceeding to implementation.
+3. Implement using test-driven development, ensuring to test all parts: utils, nodes, flows, and integration tests.
+4. During the process, if you need any input from the user (e.g., .env), ask them to provide it before proceeding.
+5. After completion, run flowToJson.ts to convert all flows under src/flows into JSON and store them under viz/.
+6. Throughout the above, fix any errors in the process without modifying the core/.
+</instructions>
+
+<project_structure>
+PocketFlow Project Example
+
+Strive to structure your project like this:
+```
+├── core/                      # 👈 Core engine (READ ONLY, do not modify)
+│   └── pocketflow.ts          # Main PocketFlow engine
+│   └── flowToJson.ts          # Utility to convert flows to JSON
+├── README.md                  # Project overview & usage instructions
+├── design.md                  # Design documentation and flow diagrams
+├── package.json               # Project dependencies & scripts
+├── package-lock.json          # Locked versions of dependencies
+├── .env.example               # Template for required environment variables
+├── config.json                # Project manifest for entrypoints & envs
+├── dist/                      # Compiled output directory
+├── output/                    # Output results from flow executions
+├── viz/                       # Auto-generated flow visualizations (do not modify)
+│   ├── example_flow.json      # JSON representation of example_flow
+│   ├── example_flow_2.json    # JSON representation of example_flow_2
+├── src/                       # Source files (flows, nodes, utils)
+│   ├── index.ts               # Main application entry point (optional)
+│   ├── types.ts               # Shared TypeScript type definitions
+│   ├── flows/                 # PocketFlow flow definitions
+│   │   └── example_flow.ts    # Example flow implementation
+│   │   └── example_flow_2.ts  # Another example flow implementation
+│   ├── nodes/                 # Reusable LLM nodes
+│   │   ├── example_node.ts    # Example node implementation
+│   │   └── index.ts           # Node exports
+│   └── utils/                 # Helper utilities
+│       ├── example_util.ts    # Example utility function
+│       └── index.ts           # Utility exports
+├── tests/                     # All tests (unit/integration)
+│   ├── flows/                 # Flow-specific tests
+│   │   └── example_flow.test.ts
+│   │   └── example_flow_2.test.ts
+│   ├── nodes/                 # Node-specific tests
+│   │   └── example_node.test.ts
+│   ├── utils/                 # Utility function tests
+│   │   └── example_util.test.ts
+│   ├── integration/           # Integration tests
+│   │   └── pipeline.test.ts   # 👈 Tests coordination across flows (e.g., multiple agents sharing a message queue pattern)
+│   └── setup.ts               # Test setup configuration (if needed)
+```
+</project_structure>
+
+<config_sample>
+## 🧾 Sample `config.json`
+
+```json
+{
+  "name": "my-pocketflow-project",
+  "version": "1.0.0",
+  "entryPoints": {
+    "exampleFlow": "./src/flows/example_flow.ts",
+    "exampleFlow2": "./src/flows/example_flow_2.ts"
+  },
+  "env": [
+    "OPENAI_API_KEY",
+    "INPUT_DIR",
+    "OUTPUT_DIR"
+  ]
+}
+```
+</config_sample>
+
+<viz_sample>
+## Sample viz/example_flow.json
+
+```json
+{
+  "nodes": [
+    {
+      "id": 1,
+      "name": "ValidatePayment",
+      "group": 2,
+      "status": 0,
+      "config": {
+        "timeout": 5000,
+        "retries": 3
+      },
+      "summary": "Validates the payment details"
+    },
+    {
+      "id": 2,
+      "name": "ProcessPayment",
+      "group": 2,
+      "status": 2,
+      "config": {
+        "paymentGateway": "stripe"
+      },
+      "summary": "Processes the payment through the selected gateway"
+    },
+    {
+      "id": 3,
+      "name": "PaymentConfirmation",
+      "group": 2,
+      "status": 3,
+      "config": {
+        "notificationMethod": "email"
+      },
+      "summary": "Sends payment confirmation to the customer"
+    },
+    {
+      "id": 4,
+      "name": "CheckStock",
+      "group": 3,
+      "status": 0,
+      "config": {
+        "inventorySystem": "mainWarehouse"
+      },
+      "summary": "Checks item availability in inventory"
+    },
+    {
+      "id": 5,
+      "name": "ReserveItems",
+      "group": 3,
+      "status": 3,
+      "config": {
+        "reservationDuration": "24h"
+      },
+      "summary": "Reserves items for the order"
+    },
+    {
+      "id": 6,
+      "name": "UpdateInventory",
+      "group": 3,
+      "status": 3,
+      "config": {
+        "updateMethod": "realtime"
+      },
+      "summary": "Updates inventory after item reservation"
+    },
+    {
+      "id": 7,
+      "name": "CreateLabel",
+      "group": 4,
+      "status": 3,
+      "config": {
+        "labelFormat": "PDF"
+      },
+      "summary": "Creates shipping label for the order"
+    },
+    {
+      "id": 8,
+      "name": "AssignCarrier",
+      "group": 4,
+      "status": 3,
+      "config": {
+        "preferredCarrier": "UPS"
+      },
+      "summary": "Assigns a carrier for shipping"
+    },
+    {
+      "id": 9,
+      "name": "SchedulePickup",
+      "group": 4,
+      "status": 3,
+      "config": {
+        "pickupWindow": "9AM-5PM"
+      },
+      "summary": "Schedules pickup with the assigned carrier"
+    }
+  ],
+  "links": [
+    {
+      "source": 1,
+      "target": 2,
+      "action": "default"
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "action": "default"
+    },
+    {
+      "source": 4,
+      "target": 5,
+      "action": "default"
+    },
+    {
+      "source": 5,
+      "target": 6,
+      "action": "default"
+    },
+    {
+      "source": 7,
+      "target": 8,
+      "action": "default"
+    },
+    {
+      "source": 8,
+      "target": 9,
+      "action": "default"
+    }
+  ],
+  "group_links": [
+    {
+      "source": 2,
+      "target": 3,
+      "action": "default"
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "action": "default"
+    }
+  ],
+  "flows": {
+    "1": "OrderFlow",
+    "2": "PaymentFlow",
+    "3": "InventoryFlow",
+    "4": "ShippingFlow"
+  }
+}
+```
+</viz_sample>
+
+<status_codes>
+Possible node statuses:
+
+| Status Code | State Name | Badge Color | Icon | Description |
+| --- | --- | --- | --- | --- |
+| 0 | Success | Green | ✅ CheckCircle | Node executed successfully |
+| 1 | Fail | Red (Destructive) | ⚠️ AlertTriangle | Node execution failed |
+| 2 | Running | Blue | 🔄 Loader2 (spinning) | Node is currently executing |
+| 3 | Pending | Gray (Outline) | ⏳ Hourglass | Node is waiting to be executed |
+| 4 | Cancelled | Gray (Secondary) | 🚫 Ban | Node execution was cancelled |
+| 5 | Skipped | Gray (Secondary) | ⏭️ SkipForward | Node was skipped during execution |
+| Unknown | Unknown | Gray (Outline) | - | Unrecognized status code |
+</status_codes>

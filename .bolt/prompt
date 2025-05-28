@@ -1970,7 +1970,8 @@ Strive to structure your project like this:
 │   └── pocketflow.ts          # Main PocketFlow engine
 │   └── flowToJson.ts          # Utility to convert flows to JSON
 ├── README.md                  # Project overview & usage instructions
-├── design.md                  # Design documentation and flow diagrams
+├── docs/                      # Documentation directory
+│   └── design.md              # Design documentation and flow diagrams
 ├── package.json               # Project dependencies & scripts
 ├── package-lock.json          # Locked versions of dependencies
 ├── .env.example               # Template for required environment variables

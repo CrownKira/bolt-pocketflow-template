@@ -1953,12 +1953,41 @@ You should:
 2. Start by writing a design, then ask the user to review before proceeding to implementation.
 3. Implement using test-driven development, ensuring to test all parts: utils, nodes, flows, and integration tests.
 4. During the process, if you need any input from the user (e.g., .env), ask them to provide it before proceeding.
-5. After completion, run the conversion script to generate JSON visualizations:
+5. Make sure to leverage the node properties for better documentation:
+   
+   a) Use `setStatus()` to indicate the current state of each node:
+      - NodeStatus.Success (0): Node executed successfully
+      - NodeStatus.Fail (1): Node execution failed
+      - NodeStatus.Running (2): Node is currently executing
+      - NodeStatus.Pending (3): Node is waiting to be executed
+      - NodeStatus.Cancelled (4): Node execution was cancelled
+      - NodeStatus.Skipped (5): Node was skipped during execution
+      - NodeStatus.Unknown (6): Unrecognized status code
+   
+   b) Use `setConfig()` to document configuration parameters for each node:
+      Example: 
+      ```
+      node.setConfig({
+        timeout: 5000,
+        retries: 3,
+        apiEndpoint: "https://api.example.com/v1"
+      });
+      ```
+   
+   c) Use `setSummary()` to provide a clear description of what each node does:
+      Example: 
+      ```
+      node.setSummary("Validates user input and checks for required fields");
+      ```
+   
+   These properties will be included in the visualization and help with documentation.
+
+6. After completion, run the conversion script to generate JSON visualizations:
    Run `npm run convert` to convert flows to JSON.
    This script will:
    - Convert all flows under src/flows into JSON
    - Store the resulting JSON files directly under the viz/ directory
-6. Throughout the above, fix any errors in the process without modifying the core/.
+7. Throughout the above, fix any errors in the process without modifying the core/.
 </instructions>
 
 <project_structure>

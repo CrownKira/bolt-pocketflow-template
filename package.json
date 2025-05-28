@@ -1,0 +1,26 @@
+{
+    "name": "demo",
+    "version": "1.0.0",
+    "description": "Demo project for converting flows to JSON visualization data",
+    "main": "core/flowToJson.js",
+    "scripts": {
+        "build": "tsc",
+        "convert": "npm run build && node dist/core/flowToJson.js && npm run copy-viz",
+        "copy-viz": "cp -r dist/viz/* viz/ 2>/dev/null || true",
+        "clean": "rm -rf dist",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {
+        "typescript": "^5.0.0",
+        "@types/node": "^20.0.0",
+        "ts-node": "^10.9.0"
+    },
+    "keywords": [
+        "flow",
+        "visualization",
+        "json",
+        "typescript"
+    ],
+    "author": "",
+    "license": "ISC"
+}

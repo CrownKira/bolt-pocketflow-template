@@ -1953,7 +1953,11 @@ You should:
 2. Start by writing a design, then ask the user to review before proceeding to implementation.
 3. Implement using test-driven development, ensuring to test all parts: utils, nodes, flows, and integration tests.
 4. During the process, if you need any input from the user (e.g., .env), ask them to provide it before proceeding.
-5. After completion, run flowToJson.ts to convert all flows under src/flows into JSON and store them under viz/.
+5. After completion, run the conversion script to generate JSON visualizations:
+   Run `npm run convert` to convert flows to JSON.
+   This script will:
+   - Convert all flows under src/flows into JSON
+   - Store the resulting JSON files directly under the viz/ directory
 6. Throughout the above, fix any errors in the process without modifying the core/.
 </instructions>
 

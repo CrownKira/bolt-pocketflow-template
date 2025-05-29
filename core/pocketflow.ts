@@ -2,6 +2,7 @@ type NonIterableObject = Partial<Record<string, unknown>> & {
     [Symbol.iterator]?: never;
 };
 type Action = string;
+type LoggerCallback = (message: string) => void;
 
 // Status code enum - moved outside the export block to avoid conflicts
 enum NodeStatus {
@@ -199,13 +200,15 @@ class ParallelBatchNode<
 
 class Flow<
     S = unknown,
-    P extends NonIterableObject = NonIterableObject,
+    P extends NonIterableObject = NonIterableObject
 > extends BaseNode<S, P> {
     start: BaseNode;
+    protected logger: LoggerCallback;
 
-    constructor(start: BaseNode) {
+    constructor(start: BaseNode, logger: LoggerCallback = console.log) {
         super();
         this.start = start;
+        this.logger = logger;
     }
 
     protected async _orchestrate(shared: S, params?: P): Promise<void> {
@@ -213,7 +216,9 @@ class Flow<
         const p = params || this._params;
         while (current) {
             current.setParams(p);
+            this.logger(`Executing node: ${current.constructor.name}`);
             const action = await current._run(shared);
+            this.logger(`Node ${current.constructor.name} completed with action: ${action}`);
             current = current.getNextNode(action);
             current = current?.clone();
         }
@@ -222,12 +227,15 @@ class Flow<
     async _run(shared: S): Promise<Action | undefined> {
         try {
             this._status = NodeStatus.Running;
+            this.logger(`Starting flow: ${this.constructor.name}`);
             const pr = await this.prep(shared);
             await this._orchestrate(shared);
             this._status = NodeStatus.Success;
+            this.logger(`Flow ${this.constructor.name} completed successfully`);
             return await this.post(shared, pr, undefined);
         } catch (error) {
             this._status = NodeStatus.Fail;
+            this.logger(`Flow ${this.constructor.name} failed: ${error}`);
             throw error;
         }
     }
@@ -235,25 +243,34 @@ class Flow<
     async exec(prepRes: unknown): Promise<unknown> {
         throw new Error("Flow can't exec.");
     }
+
+    setLogger(logger: LoggerCallback): this {
+        this.logger = logger;
+        return this;
+    }
 }
 
 class BatchFlow<
     S = unknown,
     P extends NonIterableObject = NonIterableObject,
-    NP extends NonIterableObject[] = NonIterableObject[],
+    NP extends NonIterableObject[] = NonIterableObject[]
 > extends Flow<S, P> {
     async _run(shared: S): Promise<Action | undefined> {
         try {
             this._status = NodeStatus.Running;
+            this.logger(`Starting batch flow: ${this.constructor.name}`);
             const batchParams = await this.prep(shared);
             for (const bp of batchParams) {
                 const mergedParams = { ...this._params, ...bp };
+                this.logger(`Processing batch item`);
                 await this._orchestrate(shared, mergedParams);
             }
             this._status = NodeStatus.Success;
+            this.logger(`Batch flow ${this.constructor.name} completed successfully`);
             return await this.post(shared, batchParams, undefined);
         } catch (error) {
             this._status = NodeStatus.Fail;
+            this.logger(`Batch flow ${this.constructor.name} failed: ${error}`);
             throw error;
         }
     }
@@ -267,22 +284,26 @@ class BatchFlow<
 class ParallelBatchFlow<
     S = unknown,
     P extends NonIterableObject = NonIterableObject,
-    NP extends NonIterableObject[] = NonIterableObject[],
+    NP extends NonIterableObject[] = NonIterableObject[]
 > extends BatchFlow<S, P, NP> {
     async _run(shared: S): Promise<Action | undefined> {
         try {
             this._status = NodeStatus.Running;
+            this.logger(`Starting parallel batch flow: ${this.constructor.name}`);
             const batchParams = await this.prep(shared);
             await Promise.all(
                 batchParams.map((bp) => {
                     const mergedParams = { ...this._params, ...bp };
+                    this.logger(`Processing parallel batch item`);
                     return this._orchestrate(shared, mergedParams);
-                }),
+                })
             );
             this._status = NodeStatus.Success;
+            this.logger(`Parallel batch flow ${this.constructor.name} completed successfully`);
             return await this.post(shared, batchParams, undefined);
         } catch (error) {
             this._status = NodeStatus.Fail;
+            this.logger(`Parallel batch flow ${this.constructor.name} failed: ${error}`);
             throw error;
         }
     }

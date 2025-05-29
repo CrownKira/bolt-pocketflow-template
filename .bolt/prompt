@@ -2133,18 +2133,20 @@ import { ImageProcessingFlow } from './flows/image_processing_flow';
 import fs from 'fs';
 import path from 'path';
 
-export async function runFlows(input: any) {
-  const pf = new PocketFlow();
+export type LoggerCallback = (message: string) => void;
+
+export async function runFlows(input: any, logger: LoggerCallback = console.log) {
+  const pf = new PocketFlow(logger);
   
   // Register flows
-  pf.registerFlow('imageProcessing', new ImageProcessingFlow(5, 3));
+  pf.registerFlow('imageProcessing', new ImageProcessingFlow(5, 3, logger));
 
   // Ensure the images directory exists
   const imagesDir = path.join(process.cwd(), 'src', 'images');
   if (!fs.existsSync(imagesDir)) {
     fs.mkdirSync(imagesDir, { recursive: true });
-    console.log(`Created images directory at: ${imagesDir}`);
-    console.log("Please add some image files to this directory and run the application again.");
+    logger(`Created images directory at: ${imagesDir}`);
+    logger("Please add some image files to this directory and run the application again.");
     return { status: 'no_images' };
   }
   
@@ -2153,14 +2155,14 @@ export async function runFlows(input: any) {
   const imageFiles = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
   
   if (imageFiles.length === 0) {
-    console.log("No image files found in the images directory.");
-    console.log("Please add some image files to the src/images directory and run the application again.");
+    logger("No image files found in the images directory.");
+    logger("Please add some image files to the src/images directory and run the application again.");
     return { status: 'no_images' };
   }
 
-  console.log("--------------------------------------------------");
-  console.log("Starting parallel image processing...");
-  console.log("--------------------------------------------------");
+  logger("--------------------------------------------------");
+  logger("Starting parallel image processing...");
+  logger("--------------------------------------------------");
 
   // Run flows
   const startTime = Date.now();
@@ -2168,13 +2170,13 @@ export async function runFlows(input: any) {
   const endTime = Date.now();
   const totalTime = (endTime - startTime) / 1000;
 
-  console.log("--------------------------------------------------");
-  console.log("Image processing completed successfully!");
-  console.log(`Processed ${imageFiles.length} images with 3 filters (blur, grayscale, sepia).`);
-  console.log(`Output files and report can be found in the 'output' directory.`);
-  console.log("--------------------------------------------------");
-  console.log(`Total processing time: ${totalTime.toFixed(2)} seconds`);
-  console.log("--------------------------------------------------");
+  logger("--------------------------------------------------");
+  logger("Image processing completed successfully!");
+  logger(`Processed ${imageFiles.length} images with 3 filters (blur, grayscale, sepia).`);
+  logger(`Output files and report can be found in the 'output' directory.`);
+  logger("--------------------------------------------------");
+  logger(`Total processing time: ${totalTime.toFixed(2)} seconds`);
+  logger("--------------------------------------------------");
 
   return { status: 'success', result, totalTime };
 }
@@ -2225,12 +2227,22 @@ These properties will be included in the visualization and help with documentati
 The main entry point function `runFlows` must adhere to the following interface:
 
 ```typescript
-async function runFlows(input: any): Promise<any>
+type LoggerCallback = (message: string) => void;
+
+async function runFlows(input: any, logger: LoggerCallback = console.log): Promise<any>
 ```
 
 This function should:
 1. Accept any input type to allow for flexibility in different use cases.
-2. Return a Promise that resolves to any type, allowing for diverse return structures based on the specific flows being run.
-3. Handle the registration and execution of all necessary flows for the project.
-4. Provide appropriate error handling and logging.
+2. Accept an optional logger callback for streaming logs (defaults to console.log if not provided).
+3. Return a Promise that resolves to any type, allowing for diverse return structures based on the specific flows being run.
+4. Handle the registration and execution of all necessary flows for the project.
+5. Provide appropriate error handling and logging.
+6. Use the provided logger callback for all logging operations to support SSE streaming.
+
+When implementing flows and nodes:
+1. Pass the logger callback to all flows and nodes that require logging.
+2. Use the logger callback instead of console.log for all logging operations within flows and nodes.
+3. Ensure that all important state changes, progress updates, and results are logged using the callback.
+
 </interface_specification>

@@ -85,7 +85,7 @@ Agentic Coding should be a collaboration between Human System Design and Agent I
 
      ```typescript
      // src/utils/callLlm.ts
-     import { OpenAI } from 'openai';
+     import { OpenAI } from "openai";
 
      export async function callLlm(prompt: string): Promise<string> {
        const client = new OpenAI({
@@ -93,11 +93,11 @@ Agentic Coding should be a collaboration between Human System Design and Agent I
        });
 
        const response = await client.chat.completions.create({
-         model: 'gpt-4o',
-         messages: [{ role: 'user', content: prompt }],
+         model: "gpt-4o",
+         messages: [{ role: "user", content: prompt }],
        });
 
-       return response.choices[0].message.content || '';
+       return response.choices[0].message.content || "";
      }
      ```
 
@@ -127,10 +127,10 @@ Agentic Coding should be a collaboration between Human System Design and Agent I
 
        const shared: SharedStore = {
          user: {
-           id: 'user123',
+           id: "user123",
            context: {
-             weather: { temp: 72, condition: 'sunny' },
-             location: 'San Francisco',
+             weather: { temp: 72, condition: "sunny" },
+             location: "San Francisco",
            },
          },
          results: {}, // Empty object to store outputs
@@ -205,31 +205,35 @@ my-project/
 
   ```typescript
   // src/nodes.ts
-  import { Node } from 'pocketflow';
-  import { callLlm } from './utils/callLlm';
-  import { QASharedStore } from './types';
-  import PromptSync from 'prompt-sync';
+  import { Node } from "pocketflow";
+  import { callLlm } from "./utils/callLlm";
+  import { QASharedStore } from "./types";
+  import PromptSync from "prompt-sync";
 
   const prompt = PromptSync();
 
   export class GetQuestionNode extends Node<QASharedStore> {
     async exec(): Promise<string> {
       // Get question directly from user input
-      const userQuestion = prompt('Enter your question: ') || '';
+      const userQuestion = prompt("Enter your question: ") || "";
       return userQuestion;
     }
 
-    async post(shared: QASharedStore, _: unknown, execRes: string): Promise<string | undefined> {
+    async post(
+      shared: QASharedStore,
+      _: unknown,
+      execRes: string
+    ): Promise<string | undefined> {
       // Store the user's question
       shared.question = execRes;
-      return 'default'; // Go to the next node
+      return "default"; // Go to the next node
     }
   }
 
   export class AnswerNode extends Node<QASharedStore> {
     async prep(shared: QASharedStore): Promise<string> {
       // Read question from shared
-      return shared.question || '';
+      return shared.question || "";
     }
 
     async exec(question: string): Promise<string> {
@@ -237,7 +241,11 @@ my-project/
       return await callLlm(question);
     }
 
-    async post(shared: QASharedStore, _: unknown, execRes: string): Promise<string | undefined> {
+    async post(
+      shared: QASharedStore,
+      _: unknown,
+      execRes: string
+    ): Promise<string | undefined> {
       // Store the answer in shared
       shared.answer = execRes;
       return undefined;
@@ -249,9 +257,9 @@ my-project/
 
   ```typescript
   // src/flow.ts
-  import { Flow } from 'pocketflow';
-  import { GetQuestionNode, AnswerNode } from './nodes';
-  import { QASharedStore } from './types';
+  import { Flow } from "pocketflow";
+  import { GetQuestionNode, AnswerNode } from "./nodes";
+  import { QASharedStore } from "./types";
 
   export function createQaFlow(): Flow {
     // Create nodes
@@ -270,8 +278,8 @@ my-project/
 
   ```typescript
   // src/index.ts
-  import { createQaFlow } from './flow';
-  import { QASharedStore } from './types';
+  import { createQaFlow } from "./flow";
+  import { QASharedStore } from "./types";
 
   // Example main function
   async function main(): Promise<void> {
@@ -308,11 +316,9 @@ nav_order: 1
 ---
 
 ---
-
 layout: default
 title: "Home"
 nav_order: 1
-
 ---
 
 # PocketFlow.js
@@ -433,15 +439,19 @@ class MapSummaries extends BatchNode<SharedStorage> {
     return await callLlm(prompt);
   }
 
-  async post(shared: SharedStorage, _: string[], summaries: string[]): Promise<string> {
-    shared.summary = summaries.join('\n');
-    return 'default';
+  async post(
+    shared: SharedStorage,
+    _: string[],
+    summaries: string[]
+  ): Promise<string> {
+    shared.summary = summaries.join("\n");
+    return "default";
   }
 }
 
 // Usage
 const flow = new Flow(new MapSummaries());
-await flow.run({ data: 'very long text content...' });
+await flow.run({ data: "very long text content..." });
 ```
 
 ---
@@ -471,7 +481,7 @@ class SummarizeAllFiles extends BatchFlow<SharedStorage> {
 const summarizeFile = new SummarizeFile();
 const summarizeAllFiles = new SummarizeAllFiles(summarizeFile);
 
-await summarizeAllFiles.run({ files: ['file1.txt', 'file2.txt'] });
+await summarizeAllFiles.run({ files: ["file1.txt", "file2.txt"] });
 ```
 
 ### Under the Hood
@@ -500,7 +510,9 @@ type FileParams = DirectoryParams & {
 class FileBatchFlow extends BatchFlow<SharedStorage> {
   async prep(shared: SharedStorage): Promise<FileParams[]> {
     const directory = this._params.directory;
-    const files = await getFilesInDirectory(directory).filter((f) => f.endsWith('.txt'));
+    const files = await getFilesInDirectory(directory).filter((f) =>
+      f.endsWith(".txt")
+    );
 
     return files.map((filename) => ({
       directory, // Pass on directory from parent
@@ -511,7 +523,7 @@ class FileBatchFlow extends BatchFlow<SharedStorage> {
 
 class DirectoryBatchFlow extends BatchFlow<SharedStorage> {
   async prep(shared: SharedStorage): Promise<DirectoryParams[]> {
-    return ['/path/to/dirA', '/path/to/dirB'].map((directory) => ({
+    return ["/path/to/dirA", "/path/to/dirB"].map((directory) => ({
       directory,
     }));
   }
@@ -585,10 +597,14 @@ interface SharedStore {
 }
 
 class LoadData extends Node<SharedStore> {
-  async post(shared: SharedStore, prepRes: unknown, execRes: unknown): Promise<string | undefined> {
+  async post(
+    shared: SharedStore,
+    prepRes: unknown,
+    execRes: unknown
+  ): Promise<string | undefined> {
     // We write data to shared store
-    shared.data = 'Some text content';
-    return 'default';
+    shared.data = "Some text content";
+    return "default";
   }
 }
 
@@ -605,10 +621,14 @@ class Summarize extends Node<SharedStore> {
     return summary;
   }
 
-  async post(shared: SharedStore, prepRes: unknown, execRes: unknown): Promise<string | undefined> {
+  async post(
+    shared: SharedStore,
+    prepRes: unknown,
+    execRes: unknown
+  ): Promise<string | undefined> {
     // We write summary to shared store
     shared.summary = execRes as string;
-    return 'default';
+    return "default";
   }
 }
 
@@ -617,7 +637,7 @@ const summarize = new Summarize();
 loadData.next(summarize);
 const flow = new Flow(loadData);
 
-const shared: SharedStore = { data: '', summary: '' };
+const shared: SharedStore = { data: "", summary: "" };
 flow.run(shared);
 ```
 
@@ -660,7 +680,7 @@ class SummarizeFile extends Node<SharedStore, SummarizeParams> {
   async prep(shared: SharedStore): Promise<unknown> {
     // Access the node's param
     const filename = this._params.filename;
-    return shared.data[filename] || '';
+    return shared.data[filename] || "";
   }
 
   async exec(prepRes: unknown): Promise<unknown> {
@@ -668,10 +688,14 @@ class SummarizeFile extends Node<SharedStore, SummarizeParams> {
     return await callLlm(prompt);
   }
 
-  async post(shared: SharedStore, prepRes: unknown, execRes: unknown): Promise<string | undefined> {
+  async post(
+    shared: SharedStore,
+    prepRes: unknown,
+    execRes: unknown
+  ): Promise<string | undefined> {
     const filename = this._params.filename;
     shared.summary[filename] = execRes as string;
-    return 'default';
+    return "default";
   }
 }
 
@@ -679,14 +703,14 @@ class SummarizeFile extends Node<SharedStore, SummarizeParams> {
 const node = new SummarizeFile();
 
 // 3) Set Node params directly (for testing)
-node.setParams({ filename: 'doc1.txt' });
+node.setParams({ filename: "doc1.txt" });
 node.run(shared);
 
 // 4) Create Flow
 const flow = new Flow<SharedStore>(node);
 
 // 5) Set Flow params (overwrites node params)
-flow.setParams({ filename: 'doc2.txt' });
+flow.setParams({ filename: "doc2.txt" });
 flow.run(shared); // The node summarizes doc2, not doc1
 ```
 
@@ -732,12 +756,12 @@ The `on()` method returns the current node, so you can chain multiple action def
 
 ```typescript
 // All transitions from the same node
-nodeA.on('approved', nodeB).on('rejected', nodeC).on('needs_review', nodeD);
+nodeA.on("approved", nodeB).on("rejected", nodeC).on("needs_review", nodeD);
 
 // Equivalent to:
-nodeA.on('approved', nodeB);
-nodeA.on('rejected', nodeC);
-nodeA.on('needs_review', nodeD);
+nodeA.on("approved", nodeB);
+nodeA.on("rejected", nodeC);
+nodeA.on("needs_review", nodeD);
 ```
 
 ### Chaining `next()` Methods
@@ -759,7 +783,9 @@ nodeC.next(nodeD);
 You can combine both chaining styles for complex flows:
 
 ```typescript
-nodeA.on('action1', nodeB.next(nodeC).next(nodeD)).on('action2', nodeE.on('success', nodeF).on('failure', nodeG));
+nodeA
+  .on("action1", nodeB.next(nodeC).next(nodeD))
+  .on("action2", nodeE.on("success", nodeF).on("failure", nodeG));
 ```
 
 ## 3. Creating a Flow
@@ -793,9 +819,9 @@ We can wire them like this:
 
 ```typescript
 // Define the flow connections
-review.on('approved', payment); // If approved, process payment
-review.on('needs_revision', revise); // If needs changes, go to revision
-review.on('rejected', finish); // If rejected, finish the process
+review.on("approved", payment); // If approved, process payment
+review.on("needs_revision", revise); // If needs changes, go to revision
+review.on("rejected", finish); // If rejected, finish the process
 
 revise.next(review); // After revision, go back for another review
 payment.next(finish); // After payment, finish the process
@@ -1006,14 +1032,14 @@ class SummarizeFile extends Node<SharedStore> {
   }
 
   exec(content: string): string {
-    if (!content) return 'Empty file content';
+    if (!content) return "Empty file content";
 
     const prompt = `Summarize this text in 10 words: ${content}`;
     return callLlm(prompt);
   }
 
   execFallback(_: string, error: Error): string {
-    return 'There was an error processing your request.';
+    return "There was an error processing your request.";
   }
 
   post(shared: SharedStore, _: string, summary: string): string | undefined {
@@ -1024,11 +1050,11 @@ class SummarizeFile extends Node<SharedStore> {
 
 // Example usage
 const node = new SummarizeFile(3); // maxRetries = 3
-const shared: SharedStore = { data: 'Long text to summarize...' };
+const shared: SharedStore = { data: "Long text to summarize..." };
 const action = node.run(shared);
 
-console.log('Action:', action);
-console.log('Summary:', shared.summary);
+console.log("Action:", action);
+console.log("Summary:", shared.summary);
 ```
 
 ================================================
@@ -1052,7 +1078,9 @@ nav_order: 6
 > {: .warning }
 
 > - **Ensure Tasks Are Independent**: If each item depends on the output of a previous item, **do not** parallelize.
+>
 > - **Beware of Rate Limits**: Parallel calls can **quickly** trigger rate limits on LLM services. You may need a **throttling** mechanism.
+>
 > - **Consider Single-Node Batch APIs**: Some LLMs offer a **batch inference** API where you can send multiple prompts in a single call. This is more complex to implement but can be more efficient than launching many parallel requests and mitigates rate limits.
 >   {: .best-practice }
 
@@ -1072,9 +1100,13 @@ class TextSummarizer extends ParallelBatchNode<SharedStorage> {
     return await callLlm(prompt);
   }
 
-  async post(shared: SharedStorage, prepRes: string[], execRes: string[]): Promise<string | undefined> {
+  async post(
+    shared: SharedStorage,
+    prepRes: string[],
+    execRes: string[]
+  ): Promise<string | undefined> {
     shared.summaries = execRes;
-    return 'default';
+    return "default";
   }
 }
 
@@ -1183,8 +1215,10 @@ interface SharedState {
 
 class DecideAction extends Node<SharedState> {
   async prep(shared: SharedState): Promise<[string, string]> {
-    const context = shared.context ? JSON.stringify(shared.context) : 'No previous search';
-    return [shared.query || '', context];
+    const context = shared.context
+      ? JSON.stringify(shared.context)
+      : "No previous search";
+    return [shared.query || "", context];
   }
 
   async exec([query, context]: [string, string]): Promise<any> {
@@ -1199,12 +1233,16 @@ reason: why this action
 search_term: search phrase if action is search
 \`\`\``;
     const resp = await callLlm(prompt);
-    const yamlStr = resp.split('```yaml')[1].split('```')[0].trim();
+    const yamlStr = resp.split("```yaml")[1].split("```")[0].trim();
     return yaml.load(yamlStr);
   }
 
-  async post(shared: SharedState, _: [string, string], result: any): Promise<string> {
-    if (result.action === 'search') {
+  async post(
+    shared: SharedState,
+    _: [string, string],
+    result: any
+  ): Promise<string> {
+    if (result.action === "search") {
       shared.search_term = result.search_term;
     }
     return result.action;
@@ -1213,7 +1251,7 @@ search_term: search phrase if action is search
 
 class SearchWeb extends Node<SharedState> {
   async prep(shared: SharedState): Promise<string> {
-    return shared.search_term || '';
+    return shared.search_term || "";
   }
 
   async exec(searchTerm: string): Promise<string> {
@@ -1221,21 +1259,31 @@ class SearchWeb extends Node<SharedState> {
   }
 
   async post(shared: SharedState, _: string, execRes: string): Promise<string> {
-    shared.context = [...(shared.context || []), { term: shared.search_term || '', result: execRes }];
-    return 'decide';
+    shared.context = [
+      ...(shared.context || []),
+      { term: shared.search_term || "", result: execRes },
+    ];
+    return "decide";
   }
 }
 
 class DirectAnswer extends Node<SharedState> {
   async prep(shared: SharedState): Promise<[string, string]> {
-    return [shared.query || '', shared.context ? JSON.stringify(shared.context) : ''];
+    return [
+      shared.query || "",
+      shared.context ? JSON.stringify(shared.context) : "",
+    ];
   }
 
   async exec([query, context]: [string, string]): Promise<string> {
     return await callLlm(`Context: ${context}\nAnswer: ${query}`);
   }
 
-  async post(shared: SharedState, _: [string, string], execRes: string): Promise<undefined> {
+  async post(
+    shared: SharedState,
+    _: [string, string],
+    execRes: string
+  ): Promise<undefined> {
     shared.answer = execRes;
     return undefined;
   }
@@ -1246,12 +1294,12 @@ const decide = new DecideAction();
 const search = new SearchWeb();
 const answer = new DirectAnswer();
 
-decide.on('search', search);
-decide.on('answer', answer);
-search.on('decide', decide); // Loop back
+decide.on("search", search);
+decide.on("answer", answer);
+search.on("decide", decide); // Loop back
 
 const flow = new Flow(decide);
-await flow.run({ query: 'Who won the Nobel Prize in Physics 2024?' });
+await flow.run({ query: "Who won the Nobel Prize in Physics 2024?" });
 ````
 
 ================================================
@@ -1301,9 +1349,13 @@ class SummarizeAllFiles extends BatchNode<SharedStorage> {
     return [filename, summary];
   }
 
-  async post(shared: SharedStorage, _: [string, string][], summaries: [string, string][]): Promise<string> {
+  async post(
+    shared: SharedStorage,
+    _: [string, string][],
+    summaries: [string, string][]
+  ): Promise<string> {
     shared.file_summaries = Object.fromEntries(summaries);
-    return 'summarized';
+    return "summarized";
   }
 }
 
@@ -1313,28 +1365,39 @@ class CombineSummaries extends Node<SharedStorage> {
   }
 
   async exec(summaries: Record<string, string>): Promise<string> {
-    const text_list = Object.entries(summaries).map(([fname, summ]) => `${fname} summary:\n${summ}\n`);
+    const text_list = Object.entries(summaries).map(
+      ([fname, summ]) => `${fname} summary:\n${summ}\n`
+    );
 
-    return await callLLM(`Combine these file summaries into one final summary:\n${text_list.join('\n---\n')}`);
+    return await callLLM(
+      `Combine these file summaries into one final summary:\n${text_list.join(
+        "\n---\n"
+      )}`
+    );
   }
 
-  async post(shared: SharedStorage, _: Record<string, string>, finalSummary: string): Promise<string> {
+  async post(
+    shared: SharedStorage,
+    _: Record<string, string>,
+    finalSummary: string
+  ): Promise<string> {
     shared.all_files_summary = finalSummary;
-    return 'combined';
+    return "combined";
   }
 }
 
 // Create and connect flow
 const batchNode = new SummarizeAllFiles();
 const combineNode = new CombineSummaries();
-batchNode.on('summarized', combineNode);
+batchNode.on("summarized", combineNode);
 
 // Run the flow with test data
 const flow = new Flow(batchNode);
 flow.run({
   files: {
-    'file1.txt': 'Alice was beginning to get very tired of sitting by her sister...',
-    'file2.txt': 'Some other interesting text ...',
+    "file1.txt":
+      "Alice was beginning to get very tired of sitting by her sister...",
+    "file2.txt": "Some other interesting text ...",
   },
 });
 ```
@@ -1390,7 +1453,7 @@ class ChunkDocs extends BatchNode<SharedStore> {
   }
 
   async exec(filepath: string): Promise<string[]> {
-    const text = fs.readFileSync(filepath, 'utf-8');
+    const text = fs.readFileSync(filepath, "utf-8");
     // Simplified chunking for example
     const chunks: string[] = [];
     const size = 100;
@@ -1400,7 +1463,11 @@ class ChunkDocs extends BatchNode<SharedStore> {
     return chunks;
   }
 
-  async post(shared: SharedStore, _: string[], chunks: string[][]): Promise<undefined> {
+  async post(
+    shared: SharedStore,
+    _: string[],
+    chunks: string[][]
+  ): Promise<undefined> {
     shared.allChunks = chunks.flat();
     return undefined;
   }
@@ -1415,7 +1482,11 @@ class EmbedDocs extends BatchNode<SharedStore> {
     return await getEmbedding(chunk);
   }
 
-  async post(shared: SharedStore, _: string[], embeddings: number[][]): Promise<undefined> {
+  async post(
+    shared: SharedStore,
+    _: string[],
+    embeddings: number[][]
+  ): Promise<undefined> {
     shared.allEmbeds = embeddings;
     return undefined;
   }
@@ -1430,7 +1501,11 @@ class StoreIndex extends Node<SharedStore> {
     return await createIndex(allEmbeds);
   }
 
-  async post(shared: SharedStore, _: number[][], index: unknown): Promise<undefined> {
+  async post(
+    shared: SharedStore,
+    _: number[][],
+    index: unknown
+  ): Promise<undefined> {
     shared.index = index;
     return undefined;
   }
@@ -1465,14 +1540,18 @@ type OnlineStore = SharedStore & {
 
 class EmbedQuery extends Node<OnlineStore> {
   async prep(shared: OnlineStore): Promise<string> {
-    return shared.question || '';
+    return shared.question || "";
   }
 
   async exec(question: string): Promise<number[]> {
     return await getEmbedding(question);
   }
 
-  async post(shared: OnlineStore, _: string, qEmb: number[]): Promise<undefined> {
+  async post(
+    shared: OnlineStore,
+    _: string,
+    qEmb: number[]
+  ): Promise<undefined> {
     shared.qEmb = qEmb;
     return undefined;
   }
@@ -1483,12 +1562,20 @@ class RetrieveDocs extends Node<OnlineStore> {
     return [shared.qEmb || [], shared.index, shared.allChunks || []];
   }
 
-  async exec([qEmb, index, chunks]: [number[], any, string[]]): Promise<string> {
+  async exec([qEmb, index, chunks]: [
+    number[],
+    any,
+    string[]
+  ]): Promise<string> {
     const [ids] = await searchIndex(index, qEmb, { topK: 1 });
     return chunks[ids[0][0]];
   }
 
-  async post(shared: OnlineStore, _: [number[], any, string[]], chunk: string): Promise<undefined> {
+  async post(
+    shared: OnlineStore,
+    _: [number[], any, string[]],
+    chunk: string
+  ): Promise<undefined> {
     shared.retrievedChunk = chunk;
     return undefined;
   }
@@ -1496,14 +1583,18 @@ class RetrieveDocs extends Node<OnlineStore> {
 
 class GenerateAnswer extends Node<OnlineStore> {
   async prep(shared: OnlineStore): Promise<[string, string]> {
-    return [shared.question || '', shared.retrievedChunk || ''];
+    return [shared.question || "", shared.retrievedChunk || ""];
   }
 
   async exec([question, chunk]: [string, string]): Promise<string> {
     return await callLlm(`Question: ${question}\nContext: ${chunk}\nAnswer:`);
   }
 
-  async post(shared: OnlineStore, _: [string, string], answer: string): Promise<undefined> {
+  async post(
+    shared: OnlineStore,
+    _: [string, string],
+    answer: string
+  ): Promise<undefined> {
     shared.answer = answer;
     return undefined;
   }
@@ -1522,7 +1613,7 @@ Usage example:
 
 ```typescript
 const shared = {
-  files: ['doc1.txt', 'doc2.txt'], // any text files
+  files: ["doc1.txt", "doc2.txt"], // any text files
 };
 await offlineFlow.run(shared);
 ```
@@ -1601,7 +1692,7 @@ class SummarizeNode extends Node<SharedStorage> {
   }
 
   async exec(text: string | undefined): Promise<SummaryResult> {
-    if (!text) return { summary: ['No text provided'] };
+    if (!text) return { summary: ["No text provided"] };
 
     const prompt = `
 Please summarize the following text as YAML, with exactly 3 bullet points
@@ -1617,30 +1708,35 @@ summary:
 \`\`\``;
 
     // Simulated LLM call
-    const response = '```yaml\nsummary:\n  - First point\n  - Second insight\n  - Final conclusion\n```';
+    const response =
+      "```yaml\nsummary:\n  - First point\n  - Second insight\n  - Final conclusion\n```";
 
     // Parse YAML response
-    const yamlStr = response.split('```yaml')[1].split('```')[0].trim();
+    const yamlStr = response.split("```yaml")[1].split("```")[0].trim();
 
     // Extract bullet points
     const result: SummaryResult = {
       summary: yamlStr
-        .split('\n')
-        .filter((line) => line.trim().startsWith('- '))
+        .split("\n")
+        .filter((line) => line.trim().startsWith("- "))
         .map((line) => line.trim().substring(2)),
     };
 
     // Validate
     if (!result.summary || !Array.isArray(result.summary)) {
-      throw new Error('Invalid summary structure');
+      throw new Error("Invalid summary structure");
     }
 
     return result;
   }
 
-  async post(shared: SharedStorage, _: string | undefined, result: SummaryResult): Promise<string | undefined> {
+  async post(
+    shared: SharedStorage,
+    _: string | undefined,
+    result: SummaryResult
+  ): Promise<string | undefined> {
     shared.result = result;
-    return 'default';
+    return "default";
   }
 }
 ````
@@ -1710,22 +1806,24 @@ async function callLLM(prompt: string): Promise<string> {
 
 class GenerateOutline extends Node<SharedState> {
   async prep(shared: SharedState): Promise<string> {
-    return shared.topic || '';
+    return shared.topic || "";
   }
 
   async exec(topic: string): Promise<string> {
-    return await callLLM(`Create a detailed outline for an article about ${topic}`);
+    return await callLLM(
+      `Create a detailed outline for an article about ${topic}`
+    );
   }
 
   async post(shared: SharedState, _: string, outline: string): Promise<string> {
     shared.outline = outline;
-    return 'default';
+    return "default";
   }
 }
 
 class WriteSection extends Node<SharedState> {
   async prep(shared: SharedState): Promise<string> {
-    return shared.outline || '';
+    return shared.outline || "";
   }
 
   async exec(outline: string): Promise<string> {
@@ -1734,20 +1832,24 @@ class WriteSection extends Node<SharedState> {
 
   async post(shared: SharedState, _: string, draft: string): Promise<string> {
     shared.draft = draft;
-    return 'default';
+    return "default";
   }
 }
 
 class ReviewAndRefine extends Node<SharedState> {
   async prep(shared: SharedState): Promise<string> {
-    return shared.draft || '';
+    return shared.draft || "";
   }
 
   async exec(draft: string): Promise<string> {
     return await callLLM(`Review and improve this draft: ${draft}`);
   }
 
-  async post(shared: SharedState, _: string, final: string): Promise<undefined> {
+  async post(
+    shared: SharedState,
+    _: string,
+    final: string
+  ): Promise<undefined> {
     shared.final_article = final;
     return undefined;
   }
@@ -1762,7 +1864,7 @@ outline.next(write).next(review);
 
 // Create and run flow
 const writingFlow = new Flow(outline);
-writingFlow.run({ topic: 'AI Safety' });
+writingFlow.run({ topic: "AI Safety" });
 ```
 
 For _dynamic cases_, consider using [Agents](./agent.md).
@@ -1788,19 +1890,19 @@ Here, we provide some minimal example implementations:
 1. OpenAI
 
    ```typescript
-   import { OpenAI } from 'openai';
+   import { OpenAI } from "openai";
 
    async function callLlm(prompt: string): Promise<string> {
-     const client = new OpenAI({ apiKey: 'YOUR_API_KEY_HERE' });
+     const client = new OpenAI({ apiKey: "YOUR_API_KEY_HERE" });
      const r = await client.chat.completions.create({
-       model: 'gpt-4o',
-       messages: [{ role: 'user', content: prompt }],
+       model: "gpt-4o",
+       messages: [{ role: "user", content: prompt }],
      });
-     return r.choices[0].message.content || '';
+     return r.choices[0].message.content || "";
    }
 
    // Example usage
-   callLlm('How are you?').then(console.log);
+   callLlm("How are you?").then(console.log);
    ```
 
    > Store the API key in an environment variable like OPENAI_API_KEY for security.
@@ -1809,16 +1911,16 @@ Here, we provide some minimal example implementations:
 2. Claude (Anthropic)
 
    ```typescript
-   import Anthropic from '@anthropic-ai/sdk';
+   import Anthropic from "@anthropic-ai/sdk";
 
    async function callLlm(prompt: string): Promise<string> {
      const client = new Anthropic({
-       apiKey: 'YOUR_API_KEY_HERE',
+       apiKey: "YOUR_API_KEY_HERE",
      });
      const response = await client.messages.create({
-       model: 'claude-3-7-sonnet-20250219',
+       model: "claude-3-7-sonnet-20250219",
        max_tokens: 3000,
-       messages: [{ role: 'user', content: prompt }],
+       messages: [{ role: "user", content: prompt }],
      });
      return response.content[0].text;
    }
@@ -1827,20 +1929,20 @@ Here, we provide some minimal example implementations:
 3. Google (Vertex AI)
 
    ```typescript
-   import { VertexAI } from '@google-cloud/vertexai';
+   import { VertexAI } from "@google-cloud/vertexai";
 
    async function callLlm(prompt: string): Promise<string> {
      const vertexAI = new VertexAI({
-       project: 'YOUR_PROJECT_ID',
-       location: 'us-central1',
+       project: "YOUR_PROJECT_ID",
+       location: "us-central1",
      });
 
      const generativeModel = vertexAI.getGenerativeModel({
-       model: 'gemini-1.5-flash',
+       model: "gemini-1.5-flash",
      });
 
      const response = await generativeModel.generateContent({
-       contents: [{ role: 'user', parts: [{ text: prompt }] }],
+       contents: [{ role: "user", parts: [{ text: prompt }] }],
      });
 
      return response.response.candidates[0].content.parts[0].text;
@@ -1850,35 +1952,35 @@ Here, we provide some minimal example implementations:
 4. Azure (Azure OpenAI)
 
    ```typescript
-   import { AzureOpenAI } from 'openai';
+   import { AzureOpenAI } from "openai";
 
    async function callLlm(prompt: string): Promise<string> {
      const client = new AzureOpenAI({
-       apiKey: 'YOUR_API_KEY_HERE',
+       apiKey: "YOUR_API_KEY_HERE",
        azure: {
-         apiVersion: '2023-05-15',
-         endpoint: 'https://<YOUR_RESOURCE_NAME>.openai.azure.com/',
+         apiVersion: "2023-05-15",
+         endpoint: "https://<YOUR_RESOURCE_NAME>.openai.azure.com/",
        },
      });
 
      const r = await client.chat.completions.create({
-       model: '<YOUR_DEPLOYMENT_NAME>',
-       messages: [{ role: 'user', content: prompt }],
+       model: "<YOUR_DEPLOYMENT_NAME>",
+       messages: [{ role: "user", content: prompt }],
      });
 
-     return r.choices[0].message.content || '';
+     return r.choices[0].message.content || "";
    }
    ```
 
 5. Ollama (Local LLM)
 
    ```typescript
-   import ollama from 'ollama';
+   import ollama from "ollama";
 
    async function callLlm(prompt: string): Promise<string> {
      const response = await ollama.chat({
-       model: 'llama2',
-       messages: [{ role: 'user', content: prompt }],
+       model: "llama2",
+       messages: [{ role: "user", content: prompt }],
      });
      return response.message.content;
    }
@@ -1892,28 +1994,28 @@ Feel free to enhance your `callLlm` function as needed. Here are examples:
 
 ```typescript
 interface Message {
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
 }
 
 async function callLlm(messages: Message[]): Promise<string> {
-  const client = new OpenAI({ apiKey: 'YOUR_API_KEY_HERE' });
+  const client = new OpenAI({ apiKey: "YOUR_API_KEY_HERE" });
   const r = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model: "gpt-4o",
     messages: messages,
   });
-  return r.choices[0].message.content || '';
+  return r.choices[0].message.content || "";
 }
 ```
 
 - Add in-memory caching
 
 ```typescript
-import { memoize } from 'lodash';
+import { memoize } from "lodash";
 
 const callLlmMemoized = memoize(async (prompt: string): Promise<string> => {
   // Your implementation here
-  return '';
+  return "";
 });
 
 async function callLlm(prompt: string, useCache = true): Promise<string> {
@@ -1939,62 +2041,19 @@ class SummarizeNode {
 async function callLlm(prompt: string): Promise<string> {
   console.info(`Prompt: ${prompt}`);
   // Your implementation here
-  const response = ''; // Response from your implementation
+  const response = ""; // Response from your implementation
   console.info(`Response: ${response}`);
   return response;
 }
 ```
-
 </pocketflow_documentation>
 
-<instructions>
-You should:
-1. First read the above documentation carefully to understand PocketFlow constructs.
-2. Start by writing a design, then ask the user to review before proceeding to implementation.
-3. Implement using test-driven development, ensuring to test all parts: utils, nodes, flows, and integration tests.
-4. During the process, if you need any input from the user (e.g., .env), ask them to provide it before proceeding.
-5. Make sure to leverage the node properties for better documentation:
-   
-   a) Use `setStatus()` to indicate the current state of each node:
-      - NodeStatus.Success (0): Node executed successfully
-      - NodeStatus.Fail (1): Node execution failed
-      - NodeStatus.Running (2): Node is currently executing
-      - NodeStatus.Pending (3): Node is waiting to be executed
-      - NodeStatus.Cancelled (4): Node execution was cancelled
-      - NodeStatus.Skipped (5): Node was skipped during execution
-      - NodeStatus.Unknown (6): Unrecognized status code
-   
-   b) Use `setConfig()` to document configuration parameters for each node:
-      Example: 
-      ```
-      node.setConfig({
-        timeout: 5000,
-        retries: 3,
-        apiEndpoint: "https://api.example.com/v1"
-      });
-      ```
-   
-   c) Use `setSummary()` to provide a clear description of what each node does:
-      Example: 
-      ```
-      node.setSummary("Validates user input and checks for required fields");
-      ```
-   
-   These properties will be included in the visualization and help with documentation.
-
-6. After completion, run the conversion script to generate JSON visualizations:
-   Run `npm run convert` to convert flows to JSON.
-   This script will:
-   - Convert all flows under src/flows into JSON
-   - Store the resulting JSON files directly under the viz/ directory
-7. Throughout the above, fix any errors in the process without modifying the core/.
-</instructions>
-
 <project_structure>
-PocketFlow Project Example
+<heading>PocketFlow Project Example</heading>
 
-Strive to structure your project like this:
-```
+<description>Strive to structure your project like this:</description>
+
+<directory_tree>
 ├── core/                      # 👈 Core engine (READ ONLY, do not modify)
 │   └── pocketflow.ts          # Main PocketFlow engine
 │   └── flowToJson.ts          # Utility to convert flows to JSON
@@ -2033,13 +2092,13 @@ Strive to structure your project like this:
 │   ├── integration/           # Integration tests
 │   │   └── pipeline.test.ts   # 👈 Tests coordination across flows (e.g., multiple agents sharing a message queue pattern)
 │   └── setup.ts               # Test setup configuration (if needed)
-```
+</directory_tree>
 </project_structure>
 
 <config_sample>
-## 🧾 Sample `config.json`
+<heading>🧾 Sample `config.json`</heading>
 
-```json
+<json_content>
 {
   "name": "my-pocketflow-project",
   "version": "1.0.0",
@@ -2057,171 +2116,75 @@ Strive to structure your project like this:
     "OUTPUT_DIR"
   ]
 }
-```
+</json_content>
 </config_sample>
 
-<viz_sample>
-## Sample viz/example_flow.json
+<instructions>
+<task_list>
+1. First, read the above documentation carefully to understand PocketFlow constructs.
+2. Start by writing a design, then ask the user to review before proceeding to implementation.
+3. Implement using test-driven development, ensuring to test all parts: utils, nodes, flows, and integration tests.
+4. During the process, if you need any input from the user (e.g., .env), ask them to provide it before proceeding.
+5. Make sure to leverage the node properties for better documentation:
+   
+   <node_properties>
+   a) Use `setStatus()` to indicate the current state of each node:
+      <status_codes>
+      - NodeStatus.Success (0): Node executed successfully
+      - NodeStatus.Fail (1): Node execution failed
+      - NodeStatus.Running (2): Node is currently executing
+      - NodeStatus.Pending (3): Node is waiting to be executed
+      - NodeStatus.Cancelled (4): Node execution was cancelled
+      - NodeStatus.Skipped (5): Node was skipped during execution
+      - NodeStatus.Unknown (6): Unrecognized status code
+      </status_codes>
+   
+   b) Use `setConfig()` to document configuration parameters for each node:
+      <example>
+      node.setConfig({
+        timeout: 5000,
+        retries: 3,
+        apiEndpoint: "https://api.example.com/v1"
+      });
+      </example>
+   
+   c) Use `setSummary()` to provide a clear description of what each node does:
+      <example>
+      node.setSummary("Validates user input and checks for required fields");
+      </example>
+   </node_properties>
+   
+   These properties will be included in the visualization and help with documentation.
 
-```json
-{
-  "nodes": [
-    {
-      "id": 1,
-      "name": "ValidatePayment",
-      "group": 2,
-      "status": 0,
-      "config": {
-        "timeout": 5000,
-        "retries": 3
-      },
-      "summary": "Validates the payment details"
-    },
-    {
-      "id": 2,
-      "name": "ProcessPayment",
-      "group": 2,
-      "status": 2,
-      "config": {
-        "paymentGateway": "stripe"
-      },
-      "summary": "Processes the payment through the selected gateway"
-    },
-    {
-      "id": 3,
-      "name": "PaymentConfirmation",
-      "group": 2,
-      "status": 3,
-      "config": {
-        "notificationMethod": "email"
-      },
-      "summary": "Sends payment confirmation to the customer"
-    },
-    {
-      "id": 4,
-      "name": "CheckStock",
-      "group": 3,
-      "status": 0,
-      "config": {
-        "inventorySystem": "mainWarehouse"
-      },
-      "summary": "Checks item availability in inventory"
-    },
-    {
-      "id": 5,
-      "name": "ReserveItems",
-      "group": 3,
-      "status": 3,
-      "config": {
-        "reservationDuration": "24h"
-      },
-      "summary": "Reserves items for the order"
-    },
-    {
-      "id": 6,
-      "name": "UpdateInventory",
-      "group": 3,
-      "status": 3,
-      "config": {
-        "updateMethod": "realtime"
-      },
-      "summary": "Updates inventory after item reservation"
-    },
-    {
-      "id": 7,
-      "name": "CreateLabel",
-      "group": 4,
-      "status": 3,
-      "config": {
-        "labelFormat": "PDF"
-      },
-      "summary": "Creates shipping label for the order"
-    },
-    {
-      "id": 8,
-      "name": "AssignCarrier",
-      "group": 4,
-      "status": 3,
-      "config": {
-        "preferredCarrier": "UPS"
-      },
-      "summary": "Assigns a carrier for shipping"
-    },
-    {
-      "id": 9,
-      "name": "SchedulePickup",
-      "group": 4,
-      "status": 3,
-      "config": {
-        "pickupWindow": "9AM-5PM"
-      },
-      "summary": "Schedules pickup with the assigned carrier"
-    }
-  ],
-  "links": [
-    {
-      "source": 1,
-      "target": 2,
-      "action": "default"
-    },
-    {
-      "source": 2,
-      "target": 3,
-      "action": "default"
-    },
-    {
-      "source": 4,
-      "target": 5,
-      "action": "default"
-    },
-    {
-      "source": 5,
-      "target": 6,
-      "action": "default"
-    },
-    {
-      "source": 7,
-      "target": 8,
-      "action": "default"
-    },
-    {
-      "source": 8,
-      "target": 9,
-      "action": "default"
-    }
-  ],
-  "group_links": [
-    {
-      "source": 2,
-      "target": 3,
-      "action": "default"
-    },
-    {
-      "source": 3,
-      "target": 4,
-      "action": "default"
-    }
-  ],
-  "flows": {
-    "1": "OrderFlow",
-    "2": "PaymentFlow",
-    "3": "InventoryFlow",
-    "4": "ShippingFlow"
-  }
-}
+6. After completion, run the conversion script to generate JSON visualizations:
+   Run `npm run convert` to convert flows to JSON.
+   This script will:
+   - Convert all flows under src/flows into JSON
+   - Store the resulting JSON files directly under the viz/ directory
+7. Throughout the above, fix any errors in the process without modifying the core/.
+</task_list>
+</instructions>
+
+<coverage_status_template>
+... // List all remaining pending subtasks, ensure all items in the <instructions> are covered for all development tasks
+... // Recommend specific next tasks to work on
+... // Recommend thorough coverage of all above
+</coverage_status_template>
+
+<response_format>
+In your response, you must adhere to this format:
+
 ```
-</viz_sample>
+<think>...</think>
+<coverage_status>
+[Insert content as per coverage_status_template]
+</coverage_status>
 
-<status_codes>
-Possible node statuses:
+... // Thoroughly cover all the tasks
 
-| Status Code | State Name | Badge Color | Icon | Description |
-| --- | --- | --- | --- | --- |
-| 0 | Success | Green | ✅ CheckCircle | Node executed successfully |
-| 1 | Fail | Red (Destructive) | ⚠️ AlertTriangle | Node execution failed |
-| 2 | Running | Blue | 🔄 Loader2 (spinning) | Node is currently executing |
-| 3 | Pending | Gray (Outline) | ⏳ Hourglass | Node is waiting to be executed |
-| 4 | Cancelled | Gray (Secondary) | 🚫 Ban | Node execution was cancelled |
-| 5 | Skipped | Gray (Secondary) | ⏭️ SkipForward | Node was skipped during execution |
-| Unknown | Unknown | Gray (Outline) | - | Unrecognized status code |
-</status_codes>
+<coverage_status>
+[Insert content as per coverage_status_template]
+</coverage_status>
+// All tasks complete
+```
+</response_format>

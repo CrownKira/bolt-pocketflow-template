@@ -2043,9 +2043,13 @@ Strive to structure your project like this:
 {
   "name": "my-pocketflow-project",
   "version": "1.0.0",
-  "entryPoints": {
+  "flows": {
     "exampleFlow": "./src/flows/example_flow.ts",
     "exampleFlow2": "./src/flows/example_flow_2.ts"
+  },
+  "viz": {
+    "exampleFlow": "./viz/example_flow.json",
+    "exampleFlow2": "./viz/example_flow_2.json"
   },
   "env": [
     "OPENAI_API_KEY",

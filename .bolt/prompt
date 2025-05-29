@@ -2175,16 +2175,11 @@ async function callLlm(prompt: string): Promise<string> {
 In your response, you must adhere to this format:
 
 ```
-<think>...</think>
-<coverage_status>
-[Insert content as per coverage_status_template]
-</coverage_status>
+<think>[Insert content as per coverage_status_template]</think>
 
 ... // Thoroughly cover all the tasks
 
-<coverage_status>
-[Insert content as per coverage_status_template]
-</coverage_status>
+<think>[Insert content as per coverage_status_template]</think>
 // All tasks complete
 ```
 </response_format>

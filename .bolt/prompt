@@ -2065,12 +2065,13 @@ async function callLlm(prompt: string): Promise<string> {
 ├── .env.example               # Template for required environment variables
 ├── config.json                # Project manifest for entrypoints & envs
 ├── dist/                      # Compiled output directory
+│   └── index.js               # 👈 Compiled entry point
 ├── output/                    # Output results from flow executions
 ├── viz/                       # Auto-generated flow visualizations (do not modify)
 │   ├── example_flow.json      # JSON representation of example_flow
 │   ├── example_flow_2.json    # JSON representation of example_flow_2
 ├── src/                       # Source files (flows, nodes, utils)
-│   ├── index.ts               # Main application entry point (optional)
+│   ├── index.ts               # Main application entry point
 │   ├── types.ts               # Shared TypeScript type definitions
 │   ├── flows/                 # PocketFlow flow definitions
 │   │   └── example_flow.ts    # Example flow implementation
@@ -2102,6 +2103,10 @@ async function callLlm(prompt: string): Promise<string> {
 {
   "name": "my-pocketflow-project",
   "version": "1.0.0",
+  "entrypoint": {
+    "source": "./src/index.ts",
+    "build": "./dist/index.js"
+  },
   "flows": {
     "exampleFlow": "./src/flows/example_flow.ts",
     "exampleFlow2": "./src/flows/example_flow_2.ts"
@@ -2118,6 +2123,70 @@ async function callLlm(prompt: string): Promise<string> {
 }
 </json_content>
 </config_sample>
+
+<entrypoint_sample>
+<heading>📄 Sample `src/index.ts`</heading>
+
+<typescript_content>
+import { PocketFlow } from '../core/pocketflow';
+import { ImageProcessingFlow } from './flows/image_processing_flow';
+import fs from 'fs';
+import path from 'path';
+
+export async function runFlows(input: any) {
+  const pf = new PocketFlow();
+  
+  // Register flows
+  pf.registerFlow('imageProcessing', new ImageProcessingFlow(5, 3));
+
+  // Ensure the images directory exists
+  const imagesDir = path.join(process.cwd(), 'src', 'images');
+  if (!fs.existsSync(imagesDir)) {
+    fs.mkdirSync(imagesDir, { recursive: true });
+    console.log(`Created images directory at: ${imagesDir}`);
+    console.log("Please add some image files to this directory and run the application again.");
+    return { status: 'no_images' };
+  }
+  
+  // Check if there are any images in the directory
+  const files = fs.readdirSync(imagesDir);
+  const imageFiles = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
+  
+  if (imageFiles.length === 0) {
+    console.log("No image files found in the images directory.");
+    console.log("Please add some image files to the src/images directory and run the application again.");
+    return { status: 'no_images' };
+  }
+
+  console.log("--------------------------------------------------");
+  console.log("Starting parallel image processing...");
+  console.log("--------------------------------------------------");
+
+  // Run flows
+  const startTime = Date.now();
+  const result = await pf.runFlow('imageProcessing', { imageFiles, imagesDir });
+  const endTime = Date.now();
+  const totalTime = (endTime - startTime) / 1000;
+
+  console.log("--------------------------------------------------");
+  console.log("Image processing completed successfully!");
+  console.log(`Processed ${imageFiles.length} images with 3 filters (blur, grayscale, sepia).`);
+  console.log(`Output files and report can be found in the 'output' directory.`);
+  console.log("--------------------------------------------------");
+  console.log(`Total processing time: ${totalTime.toFixed(2)} seconds`);
+  console.log("--------------------------------------------------");
+
+  return { status: 'success', result, totalTime };
+}
+
+// If running directly (not imported as a module)
+if (require.main === module) {
+  runFlows({})
+    .then(results => console.log('Results:', results))
+    .catch(error => console.error('Error:', error));
+}
+</typescript_content>
+</entrypoint_sample>
 
 <instructions>
 Make sure to leverage the node properties for better documentation:
@@ -2151,3 +2220,17 @@ c) Use `setSummary()` to provide a clear description of what each node does:
 
 These properties will be included in the visualization and help with documentation.
 </instructions>
+
+<interface_specification>
+The main entry point function `runFlows` must adhere to the following interface:
+
+```typescript
+async function runFlows(input: any): Promise<any>
+```
+
+This function should:
+1. Accept any input type to allow for flexibility in different use cases.
+2. Return a Promise that resolves to any type, allowing for diverse return structures based on the specific flows being run.
+3. Handle the registration and execution of all necessary flows for the project.
+4. Provide appropriate error handling and logging.
+</interface_specification>

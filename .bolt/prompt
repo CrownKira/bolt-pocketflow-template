@@ -2120,66 +2120,34 @@ async function callLlm(prompt: string): Promise<string> {
 </config_sample>
 
 <instructions>
-<task_list>
-1. First, read the above documentation carefully to understand PocketFlow constructs.
-2. Start by writing a design, then ask the user to review before proceeding to implementation.
-3. Implement using test-driven development, ensuring to test all parts: utils, nodes, flows, and integration tests.
-4. During the process, if you need any input from the user (e.g., .env), ask them to provide it before proceeding.
-5. Make sure to leverage the node properties for better documentation:
-   
-   <node_properties>
-   a) Use `setStatus()` to indicate the current state of each node:
-      <status_codes>
-      - NodeStatus.Success (0): Node executed successfully
-      - NodeStatus.Fail (1): Node execution failed
-      - NodeStatus.Running (2): Node is currently executing
-      - NodeStatus.Pending (3): Node is waiting to be executed
-      - NodeStatus.Cancelled (4): Node execution was cancelled
-      - NodeStatus.Skipped (5): Node was skipped during execution
-      - NodeStatus.Unknown (6): Unrecognized status code
-      </status_codes>
-   
-   b) Use `setConfig()` to document configuration parameters for each node:
-      <example>
-      node.setConfig({
-        timeout: 5000,
-        retries: 3,
-        apiEndpoint: "https://api.example.com/v1"
-      });
-      </example>
-   
-   c) Use `setSummary()` to provide a clear description of what each node does:
-      <example>
-      node.setSummary("Validates user input and checks for required fields");
-      </example>
-   </node_properties>
-   
-   These properties will be included in the visualization and help with documentation.
+Make sure to leverage the node properties for better documentation:
 
-6. After completion, run the conversion script to generate JSON visualizations:
-   Run `npm run convert` to convert flows to JSON.
-   This script will:
-   - Convert all flows under src/flows into JSON
-   - Store the resulting JSON files directly under the viz/ directory
-7. Throughout the above, fix any errors in the process without modifying the core/.
-</task_list>
+<node_properties>
+a) Use `setStatus()` to indicate the current state of each node:
+   <status_codes>
+   - NodeStatus.Success (0): Node executed successfully
+   - NodeStatus.Fail (1): Node execution failed
+   - NodeStatus.Running (2): Node is currently executing
+   - NodeStatus.Pending (3): Node is waiting to be executed
+   - NodeStatus.Cancelled (4): Node execution was cancelled
+   - NodeStatus.Skipped (5): Node was skipped during execution
+   - NodeStatus.Unknown (6): Unrecognized status code
+   </status_codes>
+
+b) Use `setConfig()` to document configuration parameters for each node:
+   <example>
+   node.setConfig({
+     timeout: 5000,
+     retries: 3,
+     apiEndpoint: "https://api.example.com/v1"
+   });
+   </example>
+
+c) Use `setSummary()` to provide a clear description of what each node does:
+   <example>
+   node.setSummary("Validates user input and checks for required fields");
+   </example>
+</node_properties>
+
+These properties will be included in the visualization and help with documentation.
 </instructions>
-
-<coverage_status_template>
-... // List all remaining pending subtasks, ensure all items in the <instructions> are covered for all development tasks
-... // Recommend specific next tasks to work on
-... // Recommend thorough coverage of all above
-</coverage_status_template>
-
-<response_format>
-In your response, you must adhere to this format:
-
-```
-<think>[Insert content as per coverage_status_template]</think>
-
-... // Thoroughly cover all the tasks
-
-<think>[Insert content as per coverage_status_template]</think>
-// All tasks complete
-```
-</response_format>

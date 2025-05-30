@@ -2222,27 +2222,3 @@ c) Use `setSummary()` to provide a clear description of what each node does:
 
 These properties will be included in the visualization and help with documentation.
 </instructions>
-
-<interface_specification>
-The main entry point function `runFlows` must adhere to the following interface:
-
-```typescript
-type LoggerCallback = (message: string) => void;
-
-async function runFlows(input: any, logger: LoggerCallback = console.log): Promise<any>
-```
-
-This function should:
-1. Accept any input type to allow for flexibility in different use cases.
-2. Accept an optional logger callback for streaming logs (defaults to console.log if not provided).
-3. Return a Promise that resolves to any type, allowing for diverse return structures based on the specific flows being run.
-4. Handle the registration and execution of all necessary flows for the project.
-5. Provide appropriate error handling and logging.
-6. Use the provided logger callback for all logging operations to support SSE streaming.
-
-When implementing flows and nodes:
-1. Pass the logger callback to all flows and nodes that require logging.
-2. Use the logger callback instead of console.log for all logging operations within flows and nodes.
-3. Ensure that all important state changes, progress updates, and results are logged using the callback.
-
-</interface_specification>

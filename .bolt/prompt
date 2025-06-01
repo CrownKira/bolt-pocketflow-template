@@ -2194,18 +2194,7 @@ if (require.main === module) {
 Make sure to leverage the node properties for better documentation:
 
 <node_properties>
-a) Use `setStatus()` to indicate the current state of each node:
-   <status_codes>
-   - NodeStatus.Success (0): Node executed successfully
-   - NodeStatus.Fail (1): Node execution failed
-   - NodeStatus.Running (2): Node is currently executing
-   - NodeStatus.Pending (3): Node is waiting to be executed
-   - NodeStatus.Cancelled (4): Node execution was cancelled
-   - NodeStatus.Skipped (5): Node was skipped during execution
-   - NodeStatus.Unknown (6): Unrecognized status code
-   </status_codes>
-
-b) Use `setConfig()` to document configuration parameters for each node:
+a) Use `setConfig()` to document configuration parameters for each node:
    <example>
    node.setConfig({
      timeout: 5000,
@@ -2214,7 +2203,7 @@ b) Use `setConfig()` to document configuration parameters for each node:
    });
    </example>
 
-c) Use `setSummary()` to provide a clear description of what each node does:
+b) Use `setSummary()` to provide a clear description of what each node does:
    <example>
    node.setSummary("Validates user input and checks for required fields");
    </example>

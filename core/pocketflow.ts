@@ -4,15 +4,12 @@ type NonIterableObject = Partial<Record<string, unknown>> & {
 type Action = string;
 type LoggerCallback = (message: string) => void;
 
-// Status code enum - moved outside the export block to avoid conflicts
+// Status code enum - only includes used statuses
 enum NodeStatus {
-    Success = 0,
-    Fail = 1,
-    Running = 2,
-    Pending = 3,
-    Cancelled = 4,
-    Skipped = 5,
-    Unknown = 6,
+    Pending = 0,
+    Running = 1,
+    Success = 2,
+    Fail = 3,
 }
 
 class BaseNode<S = unknown, P extends NonIterableObject = NonIterableObject> {
@@ -106,12 +103,7 @@ class BaseNode<S = unknown, P extends NonIterableObject = NonIterableObject> {
         return new Map(this._successors);
     }
 
-    // New methods for visualization properties
-    setStatus(status: NodeStatus): this {
-        this._status = status;
-        return this;
-    }
-
+    // Read-only access to status - no public setter
     getStatus(): number {
         return this._status;
     }
@@ -309,7 +301,6 @@ class ParallelBatchFlow<
     }
 }
 
-// Export the NodeStatus enum separately to avoid conflicts
 export {
     BaseNode,
     Node,

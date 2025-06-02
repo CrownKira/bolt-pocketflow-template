@@ -12,6 +12,17 @@ enum NodeStatus {
     Fail = 3,
 }
 
+// Node type enum
+enum NodeType {
+    Base = 'base',
+    Node = 'node',
+    BatchNode = 'batch',
+    ParallelBatchNode = 'parallel_batch',
+    Flow = 'flow',
+    BatchFlow = 'batch_flow',
+    ParallelBatchFlow = 'parallel_batch_flow',
+}
+
 class BaseNode<S = unknown, P extends NonIterableObject = NonIterableObject> {
     protected _params: P = {} as P;
     protected _successors: Map<Action, BaseNode> = new Map();
@@ -20,6 +31,8 @@ class BaseNode<S = unknown, P extends NonIterableObject = NonIterableObject> {
     protected _status: NodeStatus = NodeStatus.Pending;
     protected _config: Record<string, unknown> = {};
     protected _summary: string = '';
+    protected _nodeType: NodeType = NodeType.Base;
+    protected _filepath: string = '';
 
     protected async _exec(prepRes: unknown): Promise<unknown> {
         return await this.exec(prepRes);
@@ -125,6 +138,21 @@ class BaseNode<S = unknown, P extends NonIterableObject = NonIterableObject> {
     getSummary(): string {
         return this._summary;
     }
+
+    // Node type getter
+    getNodeType(): NodeType {
+        return this._nodeType;
+    }
+
+    // Filepath setter and getter
+    setFilepath(filepath: string): this {
+        this._filepath = filepath;
+        return this;
+    }
+
+    getFilepath(): string {
+        return this._filepath;
+    }
 }
 
 class Node<
@@ -139,6 +167,7 @@ class Node<
         super();
         this.maxRetries = maxRetries;
         this.wait = wait;
+        this._nodeType = NodeType.Node;
     }
 
     async execFallback(prepRes: unknown, error: Error): Promise<unknown> {
@@ -172,6 +201,11 @@ class BatchNode<
     S = unknown,
     P extends NonIterableObject = NonIterableObject,
 > extends Node<S, P> {
+    constructor(maxRetries: number = 1, wait: number = 0) {
+        super(maxRetries, wait);
+        this._nodeType = NodeType.BatchNode;
+    }
+
     async _exec(items: unknown[]): Promise<unknown[]> {
         if (!items || !Array.isArray(items)) return [];
         const results = [];
@@ -184,6 +218,11 @@ class ParallelBatchNode<
     S = unknown,
     P extends NonIterableObject = NonIterableObject,
 > extends Node<S, P> {
+    constructor(maxRetries: number = 1, wait: number = 0) {
+        super(maxRetries, wait);
+        this._nodeType = NodeType.ParallelBatchNode;
+    }
+
     async _exec(items: unknown[]): Promise<unknown[]> {
         if (!items || !Array.isArray(items)) return [];
         return Promise.all(items.map((item) => super._exec(item)));
@@ -201,6 +240,7 @@ class Flow<
         super();
         this.start = start;
         this.logger = logger;
+        this._nodeType = NodeType.Flow;
     }
 
     protected async _orchestrate(shared: S, params?: P): Promise<void> {
@@ -247,6 +287,11 @@ class BatchFlow<
     P extends NonIterableObject = NonIterableObject,
     NP extends NonIterableObject[] = NonIterableObject[]
 > extends Flow<S, P> {
+    constructor(start: BaseNode, logger: LoggerCallback = console.log) {
+        super(start, logger);
+        this._nodeType = NodeType.BatchFlow;
+    }
+
     async _run(shared: S): Promise<Action | undefined> {
         try {
             this._status = NodeStatus.Running;
@@ -278,6 +323,11 @@ class ParallelBatchFlow<
     P extends NonIterableObject = NonIterableObject,
     NP extends NonIterableObject[] = NonIterableObject[]
 > extends BatchFlow<S, P, NP> {
+    constructor(start: BaseNode, logger: LoggerCallback = console.log) {
+        super(start, logger);
+        this._nodeType = NodeType.ParallelBatchFlow;
+    }
+
     async _run(shared: S): Promise<Action | undefined> {
         try {
             this._status = NodeStatus.Running;
@@ -310,4 +360,5 @@ export {
     BatchFlow,
     ParallelBatchFlow,
     NodeStatus,
+    NodeType,
 };
